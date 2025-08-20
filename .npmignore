@@ -1,0 +1,45 @@
+# Source files
+src/
+examples/
+tests/
+
+# Development files
+tsconfig.json
+jest.config.js
+.eslintrc.*
+.prettierrc.*
+
+# Documentation (except README)
+CONTRIBUTING.md
+docs/
+
+# Development dependencies
+node_modules/
+
+# Environment files
+.env*
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+
+# Build cache
+*.tsbuildinfo
+
+# Test files
+*.test.*
+__tests__/
+
+# Example output
+example-output/
