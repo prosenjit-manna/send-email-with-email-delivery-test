@@ -1,6 +1,6 @@
 {
   "name": "email-deliverability-tester",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A comprehensive email deliverability testing utility that validates email format, domain existence, DNS records, and tests actual delivery via AWS SES and SMTP",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,13 @@
     "prepublishOnly": "npm run build",
     "example:basic": "ts-node examples/basic-usage.ts",
     "example:advanced": "ts-node examples/advanced-usage.ts",
-    "cli": "ts-node src/cli.ts"
+    "example:email-sending": "ts-node examples/email-sending-examples.ts",
+    "example:workflow": "ts-node examples/complete-workflow.ts",
+    "example:auto-config": "ts-node examples/auto-configuration.ts",
+    "cli": "ts-node src/cli.ts",
+    "send": "NODE_ENV=development ts-node src/cli.ts --send",
+    "send:smtp": "NODE_ENV=development ts-node src/cli.ts --send --provider smtp",
+    "send:aws": "NODE_ENV=development ts-node src/cli.ts --send --provider aws"
   },
   "keywords": [
     "email",

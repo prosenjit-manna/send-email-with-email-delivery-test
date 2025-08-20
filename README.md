@@ -13,13 +13,17 @@ A comprehensive email deliverability testing utility that validates email format
 - 📮 **MX Record Lookup** - Retrieves and validates MX records for the domain
 - 🛡️ **SPF Record Check** - Looks up SPF records for sender policy validation
 - 🔒 **DMARC Record Check** - Verifies DMARC policy records
-- 📤 **AWS SES Testing** - Tests actual email delivery via Amazon SES
-- 📧 **SMTP Testing** - Tests email delivery via custom SMTP servers
-- 🔄 **Batch Testing** - Test multiple email addresses at once
-- 💡 **Smart Recommendations** - Provides actionable recommendations based on test results
+- 📤 **AWS SES Integration** - Send emails and test delivery via Amazon SES
+- 📧 **SMTP Support** - Send emails and test delivery via custom SMTP servers
+- 🔄 **Batch Processing** - Test multiple email addresses at once
+- � **Auto-Configuration** - Automatically detects AWS SES and SMTP settings from environment variables
+- 📎 **Attachment Support** - Send emails with file attachments
+- 👥 **Multiple Recipients** - Support for CC, BCC, and multiple TO addresses
+- �💡 **Smart Recommendations** - Provides actionable recommendations based on test results
 - 📊 **Performance Tracking** - Measures test duration and provides batch statistics
 - 🎯 **TypeScript Support** - Full TypeScript definitions included
-- 🖥️ **CLI Tool** - Command-line interface for quick testing
+- 🖥️ **CLI Tool** - Command-line interface for quick testing and sending
+- ⚡ **Zero-Config Setup** - Works out of the box with environment variables
 
 ## 📦 Installation
 
@@ -29,10 +33,27 @@ npm install email-deliverability-tester
 
 ## 🔧 Quick Start
 
-### Basic Usage
+### Basic Usage (Auto-Configuration)
+
+The simplest way to use the package is with environment variables. The system will automatically detect your email provider configuration:
 
 ```typescript
-import { EmailDeliverabilityTester, quickEmailValidation } from 'email-deliverability-tester';
+import { EmailSender, quickSendEmail } from 'email-deliverability-tester';
+
+// Auto-detects configuration from environment variables
+const result = await quickSendEmail({
+  to: 'recipient@example.com',
+  subject: 'Hello World',
+  text: 'This email was sent with auto-detected configuration!'
+});
+
+console.log(`Email sent: ${result.success}`);
+```
+
+### Email Validation Only
+
+```typescript
+import { quickEmailValidation } from 'email-deliverability-tester';
 
 // Quick email validation (no actual delivery test)
 const result = await quickEmailValidation('user@example.com');
@@ -41,16 +62,28 @@ console.log(`Domain exists: ${result.domainExists}`);
 console.log(`MX records found: ${result.mxRecords.length}`);
 ```
 
-### Batch Email Validation
+### Manual Configuration
+
+For more control, you can provide explicit configuration:
 
 ```typescript
-import { batchEmailValidation } from 'email-deliverability-tester';
+import { EmailSender, EmailDeliverabilityTester } from 'email-deliverability-tester';
 
-const emails = ['user1@example.com', 'user2@gmail.com', 'invalid-email'];
-const result = await batchEmailValidation(emails);
+// Manual AWS SES configuration
+const sender = new EmailSender({
+  aws: {
+    accessKeyId: 'your-aws-access-key',
+    secretAccessKey: 'your-aws-secret-key',
+    region: 'us-east-1'
+  },
+  defaultFrom: 'your-from-email@domain.com'
+});
 
-console.log(`Valid emails: ${result.validEmails.length}`);
-console.log(`Invalid emails: ${result.invalidEmails.length}`);
+const result = await sender.sendWithSes({
+  to: 'recipient@example.com',
+  subject: 'Manual Configuration Test',
+  text: 'This email was sent with manual configuration.'
+});
 ```
 
 ### AWS SES Integration
@@ -136,18 +169,78 @@ Options:
 
 ## 🔐 Environment Variables
 
-Set up environment variables for AWS SES and SMTP:
+The package automatically detects configuration from environment variables, making setup effortless:
 
+### AWS SES Configuration (Auto-detected)
 ```bash
-# AWS SES Configuration
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 AWS_REGION=us-east-1
-EMAIL_FROM=no-reply@yourdomain.com
+AWS_EMAIL_FROM=no-reply@yourdomain.com
+```
 
-# SMTP Configuration (for examples)
+### SMTP Configuration (Auto-detected)
+```bash
+# Standard SMTP variables
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
 SMTP_USER=your_smtp_username
 SMTP_PASS=your_smtp_password
+SMTP_SECURE=false
+
+# Alternative variable names also supported
+SMPTP_HOST=smtp.gmail.com
+SMPT_USER=your_smtp_username
+SMPT_PASSWORD=your_smtp_password
+SMPT_EMAIL_FROM=smtp@yourdomain.com
+```
+
+### General Configuration
+```bash
+EMAIL_FROM=default@yourdomain.com
+```
+
+### Usage with Auto-Detection
+
+With environment variables set up, you can use the package without any configuration:
+
+```typescript
+import { EmailSender, quickSendEmail } from 'email-deliverability-tester';
+
+// Simple email sending - auto-detects provider
+const result = await quickSendEmail({
+  to: 'recipient@example.com',
+  subject: 'Auto-detected Configuration',
+  text: 'This email uses auto-detected SMTP or AWS SES configuration!'
+});
+
+// Advanced email with attachments
+const sender = new EmailSender(); // Auto-detects from env vars
+const advancedResult = await sender.send({
+  to: ['user1@example.com', 'user2@example.com'],
+  cc: 'manager@example.com',
+  subject: 'Monthly Report',
+  html: '<h1>Report</h1><p>Please find the monthly report attached.</p>',
+  attachments: [
+    {
+      filename: 'report.pdf',
+      content: reportBuffer,
+      contentType: 'application/pdf'
+    }
+  ]
+});
+```
+
+### Batch Email Validation
+
+```typescript
+import { batchEmailValidation } from 'email-deliverability-tester';
+
+const emails = ['user1@example.com', 'user2@gmail.com', 'invalid-email'];
+const result = await batchEmailValidation(emails);
+
+console.log(`Valid emails: ${result.validEmails.length}`);
+console.log(`Invalid emails: ${result.invalidEmails.length}`);
 ```
 
 ## 📖 API Reference
